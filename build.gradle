@@ -1,14 +1,21 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
+apply from: 'version.gradle'
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion build_versions.target_sdk
+    buildToolsVersion build_versions.build_tools
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        versionCode build_versions.version_code
+        versionName build_versions.version_name
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":
+                                     "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     buildTypes {
@@ -20,12 +27,69 @@ android {
 }
 
 dependencies {
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    api fileTree(dir: 'libs', include: ['*.jar'])
 
+    api deps.support.core
+    api deps.support.app_compat
+    api deps.support.fragment
+
+    /**
+     * Jetpack
+     */
+    api deps.jetpack.material
+    api deps.jetpack.annotation
+    api deps.jetpack.constraintlayout
+    /**
+     * navigation
+     */
+    api deps.navigation.fragment
+    api deps.navigation.ui
+
+    /**
+     * room
+     */
+    api deps.room.room
+    annotationProcessor deps.room.room_processor
+    /**
+     * Dagger
+     */
+    api deps.dagger.runtime
+    api deps.dagger.android
+    api deps.dagger.android_support
+//    annotationProcessor deps.dagger.processor_compiler
+//    annotationProcessor deps.dagger.android_processor_compiler
+
+    /**
+     * lifecycle
+     */
+    api deps.lifecycle.viewmodel
+    api deps.lifecycle.livedata
+    api deps.lifecycle.extensions
+    api deps.lifecycle.work
+
+    /**
+     * RxJava and retrofit
+     */
+    api deps.retrofit.gson
+    api deps.retrofit.okhttp_logging_interceptor
+    api deps.retrofit.runtime
+    api deps.retrofit.adapter
+//    api deps.retrofit.persistent_cookie
+
+    api deps.skin.skin_support
+    api deps.skin.skin_support_appcompat
+    api deps.skin.skin_support_design
+    api deps.skin.skin_support_cardview
+    api deps.skin.skin_support_constraint_layout
+    api deps.airbnb.lottie
+    api deps.refreshview.layout
+    api deps.adapter
+    api deps.glide
+    api deps.utilcodex
+    api deps.permission
 }
 
-//推荐放在module的gradle依赖文件的最后面
+
 publish {
     //userOrg这个是用户的组织，我们创建的是个人帐号，也就是我们的用户名（后续会介绍，必须一致，改成你自己的bintrayName）
     userOrg = 'xuzh2018'
@@ -36,7 +100,7 @@ publish {
     //原型id 类比'com.github.bumptech.glide:glide:3.7.0' 中的glide这一部分
     artifactId = 'saber'
     //版本号 类比'com.github.bumptech.glide:glide:3.7.0' 中的3.7.0 这一部分。很重要，我们在更新aar文件的时候需要提升版本号，类似更新apk
-    publishVersion = '1.0.2-betal'
+    publishVersion = build_versions.version_name
     //描述，大致介绍自己的类库
     desc = 'my first saber'
     //网址，可以写自己的github项目页面等
